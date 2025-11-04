@@ -299,7 +299,7 @@ export default function Home() {
           {wordpressThemes.map((theme) => (
             <div
               key={theme.id}
-              className="bg-white rounded-xl shadow hover:shadow-xl transition duration-300"
+              className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
             >
               {/* Image section */}
               <div className="relative">
@@ -384,7 +384,7 @@ export default function Home() {
           {HtmlThemes.map((theme) => (
             <div
               key={theme.id}
-              className="bg-white rounded-xl shadow hover:shadow-xl transition duration-300"
+              className="bg-white rounded-xl transition duration-300"
             >
               {/* Image section */}
               <div className="relative">
@@ -467,7 +467,7 @@ export default function Home() {
           {shopifyThemes?.map((theme) => (
             <div
               key={theme.id}
-              className="bg-white rounded-xl shadow hover:shadow-xl transition duration-300"
+              className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
             >
               {/* Image section */}
               <div className="relative">
@@ -549,7 +549,7 @@ export default function Home() {
           {topRelatedThemes?.map((theme) => (
             <div
               key={theme.id}
-              className="bg-white rounded-xl shadow hover:shadow-xl transition duration-300"
+              className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
             >
               {/* Image section */}
               <div className="relative">
@@ -630,7 +630,7 @@ export default function Home() {
                 .map((item, index) => (
                   <div
                     key={index}
-                    className="bg-white rounded-xl shadow overflow-hidden flex flex-col md:flex-row h-full"
+                    className="bg-white rounded-xl border border-[#E4E4E4] overflow-hidden flex flex-col md:flex-row h-full"
                   >
                     <img
                       src={item.image}

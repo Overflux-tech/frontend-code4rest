@@ -77,7 +77,7 @@ import React from "react";
 
 export default function TemplateCard({ item }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg flex flex-col md:flex-row overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white border border-gray-200 rounded-lg flex flex-col md:flex-row overflow-hidden border border-[#E4E4E4] transition-all duration-200">
 
       {/* 🖼️ Image */}
       <div className="relative w-full md:w-72 flex-shrink-0">

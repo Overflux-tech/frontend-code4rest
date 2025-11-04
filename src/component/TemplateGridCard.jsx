@@ -6,9 +6,8 @@ export default function TemplateGridCard({ item }) {
   return (
     <div
       key={item.id}
-      className="bg-white rounded-xl shadow hover:shadow-xl transition duration-300"
+      className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
     >
-
       {/* 🖼️ Image */}
       <div className="relative">
         <img
@@ -53,10 +52,10 @@ export default function TemplateGridCard({ item }) {
         </div>
         {/* Buttons */}
         <div className="flex gap-2">
-          <button className="bg-black text-white text-sm p-[7px] rounded w-full hover:bg-gray-800 transition whitespace-nowrap">
+          <button className="bg-black text-white text-sm p-[7px] font-semibold rounded w-full hover:bg-gray-800 transition whitespace-nowrap">
             Buy Now
           </button>
-          <button className="text-sm p-[7px] border rounded w-full hover:bg-gray-100 transition whitespace-nowrap">
+          <button className="text-sm p-[7px] border rounded w-full font-semibold hover:bg-gray-100 transition whitespace-nowrap">
             Live Demo
           </button>
 
