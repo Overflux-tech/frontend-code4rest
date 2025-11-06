@@ -29,7 +29,7 @@ const PLATFORMS = [
 ];
 
 
-const HeaderFilters = ({ platform, setPlatform }) => {
+const HeaderFilters = ({ platforms, setPlatforms }) => {
   return (
     <header className="border-b border-black-300 pb-10">
       {/* Title */}
@@ -41,11 +41,11 @@ const HeaderFilters = ({ platform, setPlatform }) => {
       {/* Platform Buttons */}
       <nav className="mt-10 flex flex-wrap gap-4 items-center">
         {PLATFORMS.map((p) => {
-          const isActive = (p.name === "Top" && platform === "") || platform === p.name;
+          const isActive = (p.name === "Top" && platforms === "") || platforms === p.name;
           return (
             <button
               key={p.name}
-              onClick={() => setPlatform(p.name === "Top" ? "" : p.name)}
+              onClick={() => setPlatforms(p.name === "Top" ? "" : p.name)}
               className={`flex items-center justify-center gap-2 w-36 h-12 border transition-all duration-200 ${isActive
                   ? `${p.color} shadow-md scale-[1.03] text-white`
                   : "bg-white text-gray-700 border border-gray-300 hover:shadow-md hover:scale-[1.03]"

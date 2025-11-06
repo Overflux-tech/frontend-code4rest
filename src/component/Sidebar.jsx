@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import "remixicon/fonts/remixicon.css";
 
-const CATEGORIES = ["WordPress Theme", "HTML Theme", "Shopify Theme", "WooCommerce Theme", "Top Rated Theme"];
+const CATEGORIES = [
+  { label: "WordPress Theme", value: "wordpress" },
+  { label: "React Theme", value: "react" },
+  { label: "HTML Theme", value: "html" },
+  { label: "Shopify Theme", value: "shopify" },
+  { label: "WooCommerce Theme", value: "woocommerce" },
+  { label: "Top Rated Theme", value: "top-rated" },
+];
 const TOPICS = [
   "Animals & Pets",
   "Medical Templates",
@@ -60,6 +67,7 @@ export default function Sidebar({
     </div>
   );
 
+  console.log('selectedCategories----', selectedCategories)
   return (
     <>
       {/* 📱 Mobile Filter Button */}
@@ -100,17 +108,20 @@ export default function Sidebar({
         {/* Categories */}
         <Section title="Categories" id="categories">
           {CATEGORIES.map((c) => (
-            <label key={c} className="flex items-center gap-2 cursor-pointer">
+            <label key={c.value} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={selectedCategories.includes(c)}
-                onChange={() => toggleList(setSelectedCategories, selectedCategories, c)}
+                checked={selectedCategories.includes(c.value)} // ✅ check by value
+                onChange={() =>
+                  toggleList(setSelectedCategories, selectedCategories, c.value) // ✅ store backend value
+                }
                 className="h-4 w-4 accent-black"
               />
-              <span className="text-[14px] text-black font-normal">{c}</span>
+              <span className="text-[14px] text-black font-normal">{c.label}</span> {/* ✅ show label */}
             </label>
           ))}
         </Section>
+
 
         {/* Topics */}
         <Section title="Topics" id="topics">
@@ -195,17 +206,17 @@ export default function Sidebar({
 
         {/* Compatible With */}
         <Section title="Compatible With" id="compatible">
-            {COMPAT.map((c) => (
-              <label key={c} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={compatibleWith.includes(c)}
-                  onChange={() => toggleList(setCompatibleWith, compatibleWith, c)}
-                  className="h-4 w-4 accent-black"
-                />
-                <span className="text-[14px] text-black font-normal">{c}</span>
-              </label>
-            ))}
+          {COMPAT.map((c) => (
+            <label key={c} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={compatibleWith.includes(c)}
+                onChange={() => toggleList(setCompatibleWith, compatibleWith, c)}
+                className="h-4 w-4 accent-black"
+              />
+              <span className="text-[14px] text-black font-normal">{c}</span>
+            </label>
+          ))}
         </Section>
       </aside>
     </>

@@ -82,12 +82,12 @@ export default function TemplateCard({ item }) {
       {/* 🖼️ Image */}
       <div className="relative w-full md:w-72 flex-shrink-0">
         <img
-          src={item.image}
+          src={item.singleImage}
           alt={item.title}
           className="w-full h-52 md:h-full object-cover"
         />
 
-        {item.oldPrice && (
+        {item.isSaleOn && (
           <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-md">
             SALE
           </div>
@@ -115,13 +115,13 @@ export default function TemplateCard({ item }) {
         <div className="flex items-center justify-between w-full md:justify-center md:flex-col gap-1 mb-3">
 
           <div className="flex items-center gap-2">
-            {item.oldPrice && (
+            {item.isSaleOn && (
               <span className="text-gray-400 line-through text-sm font-semibold">
-                ${item.oldPrice}
+                ${item.discountPrice}
               </span>
             )}
             <span
-              className={`text-2xl font-semibold ${item.oldPrice ? "text-red-600" : "text-black"
+              className={`text-2xl font-semibold ${item.isSaleOn ? "text-red-600" : "text-black"
                 }`}
             >
               ${item.price}

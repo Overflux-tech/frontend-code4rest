@@ -11,13 +11,13 @@ export default function TemplateGridCard({ item }) {
       {/* 🖼️ Image */}
       <div className="relative">
         <img
-          src={item.image}
+          src={item.singleImage}
           alt={item.title}
           className="w-full h-46 rounded-t-xl"
         />
 
         {/* SALE badge */}
-        {item.oldPrice && (
+        {item.isSaleOn && (
           <span className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold shadow">
             SALE
           </span>
@@ -40,9 +40,9 @@ export default function TemplateGridCard({ item }) {
 
           {/* Price */}
           <div className="flex items-center gap-2">
-            {item.oldPrice && (
+            {item.isSaleOn && (
               <span className="line-through text-sm text-gray-400">
-                ${item.oldPrice}
+                ${item.discountPrice}
               </span>
             )}
             <span className="text-xl font-semibold text-red-600">

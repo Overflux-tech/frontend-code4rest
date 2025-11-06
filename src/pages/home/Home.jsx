@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../../utils/axiosInstance";
+import endPointApi from "../../utils/endPointApi";
 
 const categories = [
   {
@@ -240,11 +242,60 @@ const rightFeatures = [
 
 export default function Home() {
   const [email, setEmail] = useState('');
+  const [selectedPlatform, setSelectedPlatform] = useState("All");
+  const [tabs, setTabs] = useState([]);
+
+  const filteredThemes =
+    selectedPlatform === "All"
+      ? tabs
+      : tabs.filter((t) => t.platform === selectedPlatform);
+
+
+  const groupedTabs = tabs.reduce((acc, tab) => {
+    if (!acc[tab.platform]) acc[tab.platform] = [];
+    acc[tab.platform].push(tab);
+    return acc;
+  }, {});
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Subscribed with:', email);
   };
+
+  const fetchTabs = async () => {
+    try {
+      const res = await api.get(`${endPointApi.getAllTab}`, {
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+      setTabs(res.data);
+    } catch (error) {
+      console.error("Error fetching tabs:", error);
+    }
+  };
+
+  const wordpressThemes = tabs.filter(
+    (tab) => tab.platform?.toLowerCase() === "wordpress"
+  );
+
+  const HtmlThemes = tabs.filter(
+    (tab) => tab.platform?.toLowerCase() === "html"
+  );
+
+  const reactThemes = tabs.filter(
+    (tab) => tab.platform?.toLowerCase() === "react"
+  );
+
+  const shopifyThemes = tabs.filter(
+    (tab) => tab.platform?.toLowerCase() === "shopify"
+  );
+
+  useEffect(() => {
+    fetchTabs();
+  }, []);
   return (
     <div className="bg-gray-100 min-h-screen">
       {/* Hero Section */}
@@ -289,14 +340,14 @@ export default function Home() {
       </div>
 
       {/* Wordpress Theme */}
-      <section className="py-16 bg-white text-center">
-        <h2 className="text-3xl font-bold">WordPress Themes</h2>
-        <p className="text-gray-500 mt-2 mb-10">
-          Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
-        </p>
+      {wordpressThemes.map((theme) => (
+        <section className="py-16 bg-white text-center">
+          <h2 className="text-3xl font-bold">WordPress Themes</h2>
+          <p className="text-gray-500 mt-2 mb-10">
+            Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
+          </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
-          {wordpressThemes.map((theme) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
             <div
               key={theme.id}
               className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
@@ -304,7 +355,7 @@ export default function Home() {
               {/* Image section */}
               <div className="relative">
                 <img
-                  src={theme.image}
+                  src={theme.singleImage}
                   alt={theme.title}
                   className="w-full h-52 rounded-t-xl"
                 />
@@ -315,7 +366,91 @@ export default function Home() {
                 </span> */}
 
                 {/* Sale badge */}
-                {theme.sale && (
+                {theme.isSaleOn && (
+                  <span className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold shadow">
+                    SALE
+                  </span>
+                )}
+              </div>
+              {/* Content */}
+              <div className="p-4 text-left">
+
+                {/* Title */}
+                <h3 className="text-base font-semibold leading-tight mb-1 truncate">
+                  {theme.title}
+                </h3>
+                {/* Sales section */}
+                <div className="flex items-center justify-between mb-4">
+                  {/* Sales */}
+                  <p className="text-xs text-gray-600 flex items-center gap-1 font-medium">
+                    <i className="ri-shopping-bag-fill text-black"></i> {theme.sales.toLocaleString()} Sales
+                  </p>
+
+                  {/* Price */}
+                  <div className="flex items-center gap-2">
+                    {theme.discountPrice && theme.isSaleOn && (
+                      <span className="line-through text-sm text-gray-400">
+                        ${theme.discountPrice}
+                      </span>
+                    )}
+                    <span className="text-xl font-semibold text-red-600">
+                      ${theme.price}
+                    </span>
+                  </div>
+                </div>
+                {/* Buttons */}
+                <div className="flex gap-2 font-semibold">
+                  <button className="bg-black text-white text-sm px-4 py-2 rounded w-full hover:bg-gray-800 transition">
+                    Buy Now
+                  </button>
+                  <button className="text-sm px-4 py-2 border rounded w-full hover:bg-gray-100 transition">
+                    Live Demo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* View More */}
+          <div className="mt-10">
+            <Link
+              to="/template-page"
+              state={{ platform: "wordpress" }} // 👈 pass platform info
+              className="text-sm font-medium underline hover:text-blue-600"
+            >
+              View More
+            </Link>
+          </div>
+        </section>
+      ))}
+
+      {/* React Theme */}
+      {reactThemes.map((theme) => (
+        <section className="py-16 bg-white text-center">
+          <h2 className="text-3xl font-bold">React Themes</h2>
+          <p className="text-gray-500 mt-2 mb-10">
+            Look Through Our List Of The Best Conversion-Friendly React Themes.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+            <div
+              key={theme.id}
+              className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
+            >
+              {/* Image section */}
+              <div className="relative">
+                <img
+                  src={theme.singleImage}
+                  alt={theme.title}
+                  className="w-full h-52 rounded-t-xl"
+                />
+
+                {/* Top-left badge */}
+                {/* <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded font-semibold shadow">
+                  HotShot Author
+                </span> */}
+
+                {/* Sale badge */}
+                {theme.isSaleOn && (
                   <span className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold shadow">
                     SALE
                   </span>
@@ -338,9 +473,9 @@ export default function Home() {
 
                   {/* Price */}
                   <div className="flex items-center gap-2">
-                    {theme.oldPrice && theme.sale && (
+                    {theme.discountPrice && theme.isSaleOn && (
                       <span className="line-through text-sm text-gray-400">
-                        ${theme.oldPrice}
+                        ${theme.discountPrice}
                       </span>
                     )}
                     <span className="text-xl font-semibold text-red-600">
@@ -359,29 +494,33 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* View More */}
-        <div className="mt-10">
-          {/* <a href="#" className="text-sm font-medium underline hover:text-blue-600">
+          {/* View More */}
+          <div className="mt-10">
+            {/* <a href="#" className="text-sm font-medium underline hover:text-blue-600">
             View More
           </a> */}
-          <Link to="/template-page" className="text-sm font-medium underline hover:text-blue-600">
-            View More
-          </Link>
-        </div>
-      </section>
+            <Link
+              to="/template-page"
+              state={{ platform: "react" }} // 👈 pass platform info
+              className="text-sm font-medium underline hover:text-blue-600"
+            >
+              View More
+            </Link>
+          </div>
+        </section>
+      ))}
 
       {/* HTML Theme */}
-      <section className="py-16 bg-[#fdfaf1] text-center">
-        <h2 className="text-3xl font-bold">HTML Themes</h2>
-        <p className="text-gray-500 mt-2 mb-10">
-          Look Through Our List Of The Best Conversion-Friendly HTML Themes.
-        </p>
+      {HtmlThemes.map((theme) => (
+        <section className="py-16 bg-[#fdfaf1] text-center">
+          <h2 className="text-3xl font-bold">HTML Themes</h2>
+          <p className="text-gray-500 mt-2 mb-10">
+            Look Through Our List Of The Best Conversion-Friendly HTML Themes.
+          </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
-          {HtmlThemes.map((theme) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
             <div
               key={theme.id}
               className="bg-white rounded-xl transition duration-300"
@@ -389,7 +528,7 @@ export default function Home() {
               {/* Image section */}
               <div className="relative">
                 <img
-                  src={theme.image}
+                  src={theme.singleImage}
                   alt={theme.title}
                   className="w-full h-52 rounded-t-xl"
                 />
@@ -400,7 +539,7 @@ export default function Home() {
                 </span> */}
 
                 {/* Sale badge */}
-                {theme.sale && (
+                {theme.isSaleOn && (
                   <span className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold shadow">
                     SALE
                   </span>
@@ -424,9 +563,9 @@ export default function Home() {
 
                   {/* Price */}
                   <div className="flex items-center gap-2">
-                    {theme.oldPrice && theme.sale && (
+                    {theme.discountPrice && theme.isSaleOn && (
                       <span className="line-through text-sm text-gray-400">
-                        ${theme.oldPrice}
+                        ${theme.discountPrice}
                       </span>
                     )}
                     <span className="text-xl font-semibold text-red-600">
@@ -445,26 +584,30 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* View More */}
-        <div className="mt-10">
-          <a href="#" className="text-sm font-medium underline hover:text-blue-600">
-            View More
-          </a>
-        </div>
-      </section>
+          {/* View More */}
+          <div className="mt-10">
+            <Link
+              to="/template-page"
+              state={{ platform: "html" }} // 👈 pass platform info
+              className="text-sm font-medium underline hover:text-blue-600"
+            >
+              View More
+            </Link>
+          </div>
+        </section>
+      ))}
 
       {/* Shopify Theme */}
-      <section className="py-16 bg-white text-center">
-        <h2 className="text-3xl font-bold">Shopify Themes</h2>
-        <p className="text-gray-500 mt-2 mb-10">
-          Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
-        </p>
+      {shopifyThemes?.map((theme) => (
+        <section className="py-16 bg-white text-center">
+          <h2 className="text-3xl font-bold">Shopify Themes</h2>
+          <p className="text-gray-500 mt-2 mb-10">
+            Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
+          </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
-          {shopifyThemes?.map((theme) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
             <div
               key={theme.id}
               className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
@@ -472,7 +615,7 @@ export default function Home() {
               {/* Image section */}
               <div className="relative">
                 <img
-                  src={theme.image}
+                  src={theme.singleImage}
                   alt={theme.title}
                   className="w-full h-52 rounded-t-xl"
                 />
@@ -483,7 +626,7 @@ export default function Home() {
                 </span> */}
 
                 {/* Sale badge */}
-                {theme.sale && (
+                {theme.isSaleOn && (
                   <span className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold shadow">
                     SALE
                   </span>
@@ -506,9 +649,9 @@ export default function Home() {
 
                   {/* Price */}
                   <div className="flex items-center gap-2">
-                    {theme.oldPrice && theme.sale && (
+                    {theme.discountPrice && theme.isSaleOn && (
                       <span className="line-through text-sm text-gray-400">
-                        ${theme.oldPrice}
+                        ${theme.discountPrice}
                       </span>
                     )}
                     <span className="text-xl font-semibold text-red-600">
@@ -527,16 +670,20 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* View More */}
-        <div className="mt-10">
-          <a href="#" className="text-sm font-medium underline hover:text-blue-600">
-            View More
-          </a>
-        </div>
-      </section>
+          {/* View More */}
+          <div className="mt-10">
+            <Link
+              to="/template-page"
+              state={{ platform: "shopify" }}
+              className="text-sm font-medium underline hover:text-blue-600"
+            >
+              View More
+            </Link>
+          </div>
+        </section>
+      ))}
 
       {/* Top Related Theme */}
       <section className="pt-0 py-16 bg-white text-center">
@@ -699,9 +846,12 @@ export default function Home() {
 
         {/* View More Button */}
         <div className="text-center mt-10">
-          <button className="text-black font-medium underline hover:text-gray-700">
-            View More
-          </button>
+          <Link
+              to="/template-page"
+              className="text-sm font-medium underline hover:text-blue-600"
+            >
+              View More
+            </Link>
         </div>
       </section>
 

@@ -5,6 +5,9 @@ import SortTabs from "../../component/SortTabs";
 import TemplateList from "../../component/TemplateList";
 import Pagination from "../../component/Pagination";
 import TemplateGrid from "../../component/TemplateGrid";
+import { useLocation } from "react-router-dom";
+import api from "../../utils/axiosInstance";
+import endPointApi from "../../utils/endPointApi";
 
 const ALL_TEMPLATES = [
     {
@@ -149,8 +152,11 @@ const ALL_TEMPLATES = [
     },
 ];
 export default function TemplatesPage() {
+    const location = useLocation();
+    const platformState = location.state?.platform || "";
     // Filters
-    const [platform, setPlatform] = useState("WordPress");
+    const [platforms, setPlatforms] = useState("WordPress");
+    const [themes, setThemes] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedTopics, setSelectedTopics] = useState([]); // not used heavily here
     const [selectedFeatures, setSelectedFeatures] = useState([]);
@@ -164,8 +170,9 @@ export default function TemplatesPage() {
     const [viewType, setViewType] = React.useState("list");
     const [currentPage, setCurrentPage] = useState(0);
 
+    console.log('platformState', platformState)
     // Reset page when filters change
-    useEffect(() => setCurrentPage(0), [platform, selectedCategories, selectedFeatures, selectedColors, compatibleWith, onSaleOnly, updatedRecentlyOnly, sortBy]);
+    useEffect(() => setCurrentPage(0), [platformState, selectedCategories, selectedFeatures, selectedColors, compatibleWith, onSaleOnly, updatedRecentlyOnly, sortBy]);
 
     // Filtering logic
     const filtered = useMemo(() => {
@@ -175,30 +182,25 @@ export default function TemplatesPage() {
             return a;
         };
 
-        let list = ALL_TEMPLATES.filter((t) => {
-            if (platform && t.platform !== platform) return false;
-            if (selectedCategories.length && !selectedCategories.includes(t.themeType)) return false;
-            if (onSaleOnly && !t.oldPrice) return false;
+        let list = themes.filter((t) => {
+            if (platformState && t.platform.toLowerCase() !== platformState.toLowerCase()) return false;
+            if (selectedCategories.length && !selectedCategories.includes(t.platform)) return false;
+            if (onSaleOnly && !t.isSaleOn) return false;
             if (updatedRecentlyOnly) {
-                // last 180 days ~ 6 months
-                const updatedDate = new Date(t.updated);
+                const updatedDate = new Date(t.updatedAt || t.updated);
                 if (updatedDate < daysAgo(180)) return false;
             }
-            // features/colors/compatible filters are optional — here we skip since data doesn't define them thoroughly
             return true;
         });
 
         // Sorting
-        if (sortBy === "best-seller") {
-            list = list.sort((a, b) => b.sales - a.sales);
-        } else if (sortBy === "best-rated") {
-            list = list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        } else if (sortBy === "latest") {
-            list = list.sort((a, b) => new Date(b.updated) - new Date(a.updated));
-        }
+        if (sortBy === "best-seller") list = list.sort((a, b) => b.sales - a.sales);
+        else if (sortBy === "best-rated") list = list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        else if (sortBy === "latest") list = list.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
         return list;
-    }, [platform, selectedCategories, onSaleOnly, updatedRecentlyOnly, sortBy]);
+    }, [themes, platformState, selectedCategories, onSaleOnly, updatedRecentlyOnly, sortBy]);
+
 
     // ✅ Reset page when view type changes
     useEffect(() => {
@@ -223,11 +225,31 @@ export default function TemplatesPage() {
         return filtered.slice(start, start + ITEMS_PER_PAGE);
     }, [filtered, currentPage, ITEMS_PER_PAGE]);
 
+    console.log('themes----------', themes)
+    useEffect(() => {
+        const fetchThemes = async () => {
+            try {
+                const params = new URLSearchParams();
+                if (selectedCategories) params.append("platform", selectedCategories.join(","));
+                if (onSaleOnly) params.append("isSaleOn", true);
+                if (compatibleWith.length) params.append("designSoftware", compatibleWith.join(","));
+
+                const res = await api.get(`${endPointApi.getAllTab}?${params.toString()}`);
+                setThemes(res.data);
+            } catch (error) {
+                console.error("Error fetching themes:", error);
+            }
+        };
+
+        fetchThemes();
+    }, [platformState, onSaleOnly, selectedFeatures, selectedCategories]);
+
+
     return (
         <div className="min-h-screen bg-white">
             <div className="max-w-7xl mx-auto py-7 px-4 sm:px-6 lg:px-8">
                 {/* Header Filters */}
-                <HeaderFilters platform={platform} setPlatform={setPlatform} />
+                <HeaderFilters platform={platforms} setPlatforms={setPlatforms} />
                 <div className="mt-6 flex flex-col lg:flex-row gap-6">
                     {/* Sidebar */}
                     <div className="w-full lg:w-72">
