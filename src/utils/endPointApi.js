@@ -4,7 +4,8 @@ const endPointApi = {
     getAllTab: "tab/get-all-tab",
     deleteTab: "tab/delete",
     getTabById: "tab",
-    updateTab: "tab"
+    updateTab: "tab",
+    searchTab: "tab/search"
 }
 
 export default endPointApi;

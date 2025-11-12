@@ -31,114 +31,6 @@ const categories = [
   },
 ];
 
-const wordpressThemes = [
-  {
-    id: 1,
-    title: "Face Serum – WordPress Responsive",
-    image: "/images/wordpress1.png",
-    sales: 1524,
-    oldPrice: 59,
-    price: 39,
-    sale: true,
-  },
-  {
-    id: 2,
-    title: "Halloween – WordPress Responsive",
-    image: "/images/wordpress2.png",
-    sales: 1254,
-    price: 39,
-    sale: false,
-  },
-  {
-    id: 3,
-    title: "Lingerie Photography – WordPress Responsive",
-    image: "/images/wordpress3.png",
-    sales: 3568,
-    price: 39,
-    sale: false,
-  },
-  {
-    id: 4,
-    title: "Electric Scooter – WordPress Responsive",
-    image: "/images/wordpress4.png",
-    sales: 9562,
-    price: 39,
-    sale: false,
-  },
-];
-
-const HtmlThemes = [
-  {
-    id: 1,
-    title: "Restaurant & Cafe – HTML Theme",
-    image: "/images/html1.png",
-    sales: 1524,
-    oldPrice: 59,
-    price: 39,
-    sale: false,
-  },
-  {
-    id: 2,
-    title: "Flooring – HTML Theme",
-    image: "/images/html2.png",
-    sales: 1254,
-    price: 39,
-    sale: false,
-  },
-  {
-    id: 3,
-    title: "Hair Cut – HTML Theme",
-    image: "/images/html3.png",
-    sales: 3568,
-    price: 39,
-    sale: true,
-  },
-  {
-    id: 4,
-    title: "Tattoo Artist – HTML Theme",
-    image: "/images/html4.png",
-    sales: 9562,
-    price: 39,
-    sale: false,
-  },
-];
-
-const shopifyThemes = [
-  {
-    id: 1,
-    title: "Organic & Grocery Shop - Shopify Theme",
-    image: "/images/Frame 1 (1).png",
-    sales: 1896,
-    price: 39,
-    sale: false,
-  },
-  {
-    id: 2,
-    title: "Lingerie & Bikini - Shopify Theme",
-    image: "/images/Frame 2.png",
-    sales: 1254,
-    oldPrice: 59,
-    price: 19,
-    sale: true,
-  },
-  {
-    id: 3,
-    title: "Organic & Grocery Shop - Shopify Theme",
-    image: "/images/wordpress3.png",
-    sales: 3568,
-    price: 40,
-    sale: false,
-  },
-  {
-    id: 4,
-    title: "Organic & Grocery Shop - Shopify Theme",
-    image: "/images/wordpress4.png",
-    sales: 9562,
-    price: 39,
-    sale: false,
-  },
-];
-
 const topRelatedThemes = [
   {
     id: 1,
@@ -244,6 +136,9 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState("All");
   const [tabs, setTabs] = useState([]);
+  const [query, setQuery] = useState(""); // search term
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const filteredThemes =
     selectedPlatform === "All"
@@ -257,6 +152,38 @@ export default function Home() {
     return acc;
   }, {});
 
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+
+    try {
+      setLoading(true);
+
+      // 🔹 Example: Search across multiple fields (title, category, etc.)
+      const res = await api.get(`${endPointApi.searchTab}`, {
+        params: {
+          title: query,
+          category: query,
+          platform: query,
+          designSoftware: query,
+          description: query,
+        },
+      });
+
+      setTabs(res.data.data || []);
+    } catch (error) {
+      console.error("Search failed:", error);
+      setTabs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Enter key press
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -292,6 +219,7 @@ export default function Home() {
   const shopifyThemes = tabs.filter(
     (tab) => tab.platform?.toLowerCase() === "shopify"
   );
+  console.log('tabs---', tabs)
 
   useEffect(() => {
     fetchTabs();
@@ -312,13 +240,17 @@ export default function Home() {
           <div className="w-full max-w-2xl mx-auto relative">
             <input
               type="text"
-              placeholder="Product"
-              className="w-full px-4 py-3 pr-32 text-lg bg-white rounded-lg shadow-lg border-0 outline-none text-black"
+              placeholder="Search Product..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full px-4 py-3 pr-32 text-lg bg-white rounded-lg shadow-lg border border-gray-200 outline-none text-black"
             />
             <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-6 bg-black py-2 rounded-lg text-base font-semibold cursor-pointer"
+              onClick={handleSearch}
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-6 bg-black text-white py-2 rounded-lg text-base font-semibold cursor-pointer hover:bg-gray-800 transition"
             >
-              Search
+              {loading ? "Searching..." : "Search"}
             </button>
           </div>
         </section>
@@ -340,14 +272,18 @@ export default function Home() {
       </div>
 
       {/* Wordpress Theme */}
-      {wordpressThemes.map((theme) => (
-        <section className="py-16 bg-white text-center">
-          <h2 className="text-3xl font-bold">WordPress Themes</h2>
-          <p className="text-gray-500 mt-2 mb-10">
-            Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
-          </p>
+      <section className="py-16 bg-white text-center">
+        {wordpressThemes.length > 0 && (
+          <>
+            <h2 className="text-3xl font-bold">WordPress Themes</h2>
+            <p className="text-gray-500 mt-2 mb-10">
+              Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
+            </p>
+          </>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+          {wordpressThemes.map((theme) => (
             <div
               key={theme.id}
               className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
@@ -409,8 +345,10 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-          {/* View More */}
+          ))}
+        </div>
+        {/* View More */}
+        {wordpressThemes.length > 0 && (
           <div className="mt-10">
             <Link
               to="/template-page"
@@ -420,18 +358,22 @@ export default function Home() {
               View More
             </Link>
           </div>
-        </section>
-      ))}
+        )}
+      </section>
 
       {/* React Theme */}
-      {reactThemes.map((theme) => (
-        <section className="py-16 bg-white text-center">
-          <h2 className="text-3xl font-bold">React Themes</h2>
-          <p className="text-gray-500 mt-2 mb-10">
-            Look Through Our List Of The Best Conversion-Friendly React Themes.
-          </p>
+      <section className="py-16 bg-white text-center">
+        {reactThemes.length > 0 && (
+          <>
+            <h2 className="text-3xl font-bold">React Themes</h2>
+            <p className="text-gray-500 mt-2 mb-10">
+              Look Through Our List Of The Best Conversion-Friendly React Themes.
+            </p>
+          </>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+          {reactThemes.map((theme) => (
             <div
               key={theme.id}
               className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
@@ -494,33 +436,36 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          {/* View More */}
+        {/* View More */}
+        {reactThemes.length > 0 && (
           <div className="mt-10">
-            {/* <a href="#" className="text-sm font-medium underline hover:text-blue-600">
-            View More
-          </a> */}
             <Link
               to="/template-page"
-              state={{ platform: "react" }} // 👈 pass platform info
+              state={{ platform: "react" }}
               className="text-sm font-medium underline hover:text-blue-600"
             >
               View More
             </Link>
           </div>
-        </section>
-      ))}
+        )}
+      </section>
 
       {/* HTML Theme */}
-      {HtmlThemes.map((theme) => (
-        <section className="py-16 bg-[#fdfaf1] text-center">
-          <h2 className="text-3xl font-bold">HTML Themes</h2>
-          <p className="text-gray-500 mt-2 mb-10">
-            Look Through Our List Of The Best Conversion-Friendly HTML Themes.
-          </p>
+      <section className="py-16 bg-[#fdfaf1] text-center">
+        {HtmlThemes.length > 0 && (
+          <>
+            <h2 className="text-3xl font-bold">HTML Themes</h2>
+            <p className="text-gray-500 mt-2 mb-10">
+              Look Through Our List Of The Best Conversion-Friendly HTML Themes.
+            </p>
+          </>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+          {HtmlThemes.map((theme) => (
             <div
               key={theme.id}
               className="bg-white rounded-xl transition duration-300"
@@ -584,9 +529,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          {/* View More */}
+        {/* View More */}
+        {HtmlThemes.length > 0 && (
           <div className="mt-10">
             <Link
               to="/template-page"
@@ -596,18 +543,22 @@ export default function Home() {
               View More
             </Link>
           </div>
-        </section>
-      ))}
+        )}
+      </section>
 
       {/* Shopify Theme */}
-      {shopifyThemes?.map((theme) => (
-        <section className="py-16 bg-white text-center">
-          <h2 className="text-3xl font-bold">Shopify Themes</h2>
-          <p className="text-gray-500 mt-2 mb-10">
-            Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
-          </p>
+      <section className="py-16 bg-white text-center">
+        {shopifyThemes.length > 0 && (
+          <>
+            <h2 className="text-3xl font-bold">Shopify Themes</h2>
+            <p className="text-gray-500 mt-2 mb-10">
+              Look Through Our List Of The Best Conversion-Friendly WordPress Themes.
+            </p>
+          </>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
+          {shopifyThemes?.map((theme) => (
             <div
               key={theme.id}
               className="bg-white rounded-xl border border-[#E4E4E4] transition duration-300"
@@ -670,9 +621,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          {/* View More */}
+        {/* View More */}
+        {shopifyThemes.length > 0 && (
           <div className="mt-10">
             <Link
               to="/template-page"
@@ -682,8 +635,8 @@ export default function Home() {
               View More
             </Link>
           </div>
-        </section>
-      ))}
+        )}
+      </section>
 
       {/* Top Related Theme */}
       <section className="pt-0 py-16 bg-white text-center">
@@ -758,7 +711,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-
       </section>
 
       {/* Insight section */}
@@ -847,11 +799,11 @@ export default function Home() {
         {/* View More Button */}
         <div className="text-center mt-10">
           <Link
-              to="/template-page"
-              className="text-sm font-medium underline hover:text-blue-600"
-            >
-              View More
-            </Link>
+            to="/template-page"
+            className="text-sm font-medium underline hover:text-blue-600"
+          >
+            View More
+          </Link>
         </div>
       </section>
 
